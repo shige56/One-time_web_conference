@@ -1,0 +1,28 @@
+
+section {
+    text-align: center;
+}
+
+.roomAddBtn {
+    margin-top:20%;
+    margin-bottom: 10%;
+}
+
+.roomAddBtn a {
+    color: #fff;
+    background-color: #5BBCCE;
+    font-size: 75px;
+    padding: 50px 128px;
+    border-radius: 85px;
+    text-decoration: none;
+}
+
+.roomGestBtn a {
+    color: #15D08F;
+    background-color: #fff;
+    border: 3px solid #15D08F;
+    font-size: 48px;
+    padding: 23px 45px;
+    border-radius: 85px;
+    text-decoration: none;
+}

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.webrtc.ecl.ntt.com/skyway-4.4.4.js"></script>
+    <title>SkyWayチュートリアル</title>
+    <link rel="stylesheet" href="../css/room.css">
+    <script src="https://kit.fontawesome.com/b4ae8caa61.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <main>
+        <section>
+            <p id="my-id"></p>
+            <div class="videoDiv">
+                
+                <div class="gestVideo">
+                    <video id="their-video" autoplay playsinline></video>
+                </div>
+                <div class="myVideo">
+                    <video id="my-video" autoplay muted playsinline></video>
+                </div>
+            </div>
+            <div class="button-All">
+                <button id="mute" onclick="muteClick();">音声ミュート</button>
+                <button id="camera-off" onclick="cameraClick();">カメラオフ</button>
+                <button id="End-call"><i class="fa-duotone fa-circle-phone-hangup"></i>通話終了</button>
+            </div>
+            <input id="their-id"></input>
+                <button id="make-call">発信</button>
+
+        </section>
+    </main>
+</body>
+<script>
+    let localStream;
+    const peer = new Peer({
+        key: '2cbaa64b-4602-4470-9950-a3b60e03a9d0',
+        debug: 3
+    });
+
+    //PeerID取得
+    peer.on('open', () => {
+        document.getElementById('my-id').textContent = peer.id;
+    });
+    // カメラ映像取得
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .then(stream => {
+            // 成功時にvideo要素にカメラ映像をセットし、再生
+            const videoElm = document.getElementById('my-video');
+            videoElm.srcObject = stream;
+            videoElm.play();
+            // 着信時に相手にカメラ映像を返せるように、グローバル変数に保存しておく
+            localStream = stream;
+        }).catch(error => {
+            // 失敗時にはエラーログを出力
+            console.error('mediaDevice.getUserMedia() error:', error);
+            return;
+        });
+
+    // 発信処理
+    document.getElementById('make-call').onclick = () => {
+        const theirID = document.getElementById('their-id').value;
+        const mediaConnection = peer.call(theirID, localStream);
+        setEventListener(mediaConnection);
+    };
+
+    // イベントリスナを設置する関数
+    const setEventListener = mediaConnection => {
+        mediaConnection.on('stream', stream => {
+            // video要素にカメラ映像をセットして再生
+            const videoElm = document.getElementById('their-video')
+            videoElm.srcObject = stream;
+            videoElm.play();
+        });
+    }
+
+    //着信処理
+    peer.on('call', mediaConnection => {
+        mediaConnection.answer(localStream);
+        setEventListener(mediaConnection);
+    });
+
+    peer.on('error', err => {
+        alert(err.message);
+    });
+
+    peer.on('close', () => {
+        alert('通信が切断しました。');
+    });
+
+//音声ミュートボタンをクリックした時の処理
+function muteClick(){
+    var audioTrack = stream.getAudioTracks()[0];
+
+    if(audioTrack.enabled) {
+        audioTrack.enabled = false
+    }else{
+        audioTrack.enabled = true
+    }
+}
+
+//カメラオフボタンをクリックした時の処理
+function cameraClick(){
+    var videoTrack = stream.getVideoTracks()[0];
+
+    if(videoTrack.enabled) {
+        videoTrack.enabled = false
+    }else{
+        videoTrack.enabled = true
+    }
+}
+</script>
+</html>
